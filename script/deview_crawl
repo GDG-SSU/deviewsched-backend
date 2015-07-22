@@ -14,6 +14,10 @@ use Coro::Timer;
 
 use DeviewSched::ConfigHelper qw/load_config_from_outside/;
 
+BEGIN {
+    binmode "STDOUT", ":encoding(utf8)";
+}
+
 sub usage () {
     return <<USAGE
 $0 - crawls Deview website
@@ -28,13 +32,6 @@ sub _inject_module {
     eval { require "$class_file.pm" };
     die sprintf 'Module Injection Failed: %s', $@ if $@;
 }
-
-sub get_session_details {
-    my $session_id = shift;
-
-    say $session_id;
-}
-
 
 sub init {
     my ($class) = @_;
@@ -57,15 +54,16 @@ my @schedule_list = $parser->schedule_list;
 
 my @coros = map { 
     my $c = Coro->new(sub {
-    my $task_id = shift;
+        my $task_id = shift;
         while (@schedule_list) {
             my $session_id = shift @schedule_list;
             printf "Task #%d: Crawling %d (%02d remaining)\n", 
                 $task_id, $session_id, scalar @schedule_list;
 
+            $parser->session_detail($session_id);
             # TODO: 일해라!
             
-            Coro::Timer::sleep 1;
+            Coro::Timer::sleep 5;
         }
 
         printf "Task #%d: job finished.\n", $task_id;

@@ -1,6 +1,7 @@
 {
     database => {
-        host     => 'db.line-friends',
+        database => 'deviewsched',
+        host     => 'db-server.line-friends.domain',
         port     => '2525',
         username => 'brown',
         password => "' _') CONY <3"

@@ -1,0 +1,30 @@
+#!/usr/bin/env perl
+use 5.010;
+use utf8;
+use strict;
+use warnings;
+
+use lib 'lib';
+
+use Mojolicious::Lite;
+use DeviewSched::ConfigHelper qw/load_config_from_outside/;
+
+use DeviewSched::Database qw/get_dbh/;
+
+load_config_from_outside(app);
+my $dbh = get_dbh(app->config->{database});
+
+
+my $sth = $dbh->prepare(DeviewSched::Database::SQL_DB_INIT);
+
+eval {
+    $sth->execute;
+    $dbh->commit;
+};
+
+if ($@) {
+    warn $@;
+    $dbh->rollback;
+}
+
+$dbh->disconnect;

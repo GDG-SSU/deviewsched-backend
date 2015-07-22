@@ -27,7 +27,7 @@ sub load_config_from_outside {
     my $config_path = get_config_path;
 
     if (-e $config_path) {
-        $app->plugin(file => $config_path);
+        $app->plugin(config => {file => $config_path});
     } else {
         warn sprintf "WARN: configuration file (%s) not exists", $config_path;
     }

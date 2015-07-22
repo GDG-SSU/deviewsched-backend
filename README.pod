@@ -1,0 +1,20 @@
+
+=encoding utf-8
+
+=for comment
+이 문서는 pod2markdown으로 Markdown 형식의 문서로 변환할 수 있습니다.
+
+
+=head1 deviewsched-backend
+ 
+Deviewsched project repo for Deview 2015 
+
+=head1 설치
+
+=head2 설정 파일에 대해
+
+저장소 내에 있는 deviewsched.conf.sample를 입맛에 맞게 편집하여 /etc/deviewsched.conf로 저장합니다.
+또는, DEVIEWSCHED_BACKEND_CONF 환경 변수를 지정합니다.
+
+
+

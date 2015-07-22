@@ -1,0 +1,117 @@
+#!/usr/bin/env perl
+use 5.010;
+use utf8;
+use strict;
+use warnings;
+
+use lib 'lib';
+
+use Mojolicious::Lite;
+
+use Coro;
+use Coro::LWP;
+use Coro::Timer;
+
+use DeviewSched::ConfigHelper qw/load_config_from_outside/;
+
+sub usage () {
+    return <<USAGE
+$0 - crawls Deview website
+usage: $0 YEAR [PARALLEL_COUNT]
+USAGE
+}
+
+sub _inject_module {
+    my $class     = shift;
+    my $classFile = join "/", (split "::", $class);
+
+    eval { require "$classFile.pm" };
+    die sprintf 'Module Injection Failed: %s', $@ if $@;
+}
+
+sub get_session_details {
+    my $session_id = shift;
+
+    say $session_id;
+}
+
+
+sub init {
+    my ($class) = @_;
+    _inject_module($class);
+
+    load_config_from_outside(app);
+}
+
+# init
+die usage unless @ARGV;
+
+my $year  = shift @ARGV;
+my $parallel_count = shift @ARGV || 3;
+my $class = sprintf "DeviewSched::ScheduleParser::%d", $year;
+
+init($class);
+
+my $parser = $class->new;
+my @schedule_list = $parser->schedule_list;
+
+my @coros = map { 
+    my $c = Coro->new(sub {
+    my $task_id = shift;
+        while (@schedule_list) {
+            my $session_id = shift @schedule_list;
+            printf "Task #%d: Crawling %d (%02d remaining)\n", 
+                $task_id, $session_id, scalar @schedule_list;
+
+            # TODO: 일해라!
+            
+            Coro::Timer::sleep 1;
+        }
+
+        printf "Task #%d: job finished.\n", $task_id;
+    }, $_);
+    $c->ready;
+    $c;
+} 1..$parallel_count;
+
+$_->join for @coros;
+
+
+
+
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+deview_crawl - Deview 웹 사이트를 크롤링 하고 데이터베이스에 저장합니다.
+
+=head1 USAGE
+
+    deview_crawl YEAR [PARALLEL_COUNT]
+
+=head2 PARAMETERS
+
+=over 4
+
+=item YEAR
+
+크롤링할 연도를 지정합니다.
+
+=item PARALLEL_COUNT
+
+병렬 처리할 개수를 지정합니다. 기본값은 3 입니다.
+
+=back
+
+=head1 DESCRIPTION
+
+문서화 요망
+
+=head1 AUTHOR
+
+Gyuhwan Park (unstabler) E<lt>doping.cheese@gmail.comE<gt> 
+
+=cut

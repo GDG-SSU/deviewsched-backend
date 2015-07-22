@@ -1,0 +1,8 @@
+{
+    database => {
+        host     => 'db.line-friends',
+        port     => '2525',
+        username => 'brown',
+        password => "' _') CONY <3"
+    }
+}

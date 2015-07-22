@@ -22,3 +22,5 @@ nytprof.out
 /log/
 *.swp
 *.kate-swp
+
+deviewsched.conf

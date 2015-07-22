@@ -5,14 +5,19 @@ use warnings;
 use utf8;
 
 use LWP::UserAgent;
+
 use Moose::Role;
+
+sub _UA_DEFAULT_USERAGENT () { sprintf 'Mozilla/5.0 (%s) Perl/%s github:GDG-SSU/deviewsched-backend', $^O, $^V }
+
+has '_ua' => (
+    is      => 'ro',
+    isa     => 'LWP::UserAgent',
+    default =>  sub { LWP::UserAgent->new( agent => _UA_DEFAULT_USERAGENT ) },
+);
 
 requires 'schedule_list';
 requires 'schedule_detail';
-
-sub BUILD {
-    my $self = shift;
-}
 
 1;
 __END__
@@ -64,6 +69,16 @@ DeviewSched::Roles::ScheduleParser - ScheduleParser Moose Role
 =head1 DESCRIPTION
 
 DeviewSched::Roles::ScheduleParser는ScheduleParser의 Moose Role입니다.
+
+=head2 ATTRIBUTES
+
+=over 4
+
+=item C<_ua>
+
+LWP::UserAgent 인스턴스입니다.
+
+=back
 
 =head2 METHODS
 

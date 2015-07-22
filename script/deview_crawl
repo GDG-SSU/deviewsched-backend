@@ -22,10 +22,10 @@ USAGE
 }
 
 sub _inject_module {
-    my $class     = shift;
-    my $classFile = join "/", (split "::", $class);
+    my $class      = shift;
+    my $class_file = join "/", (split "::", $class);
 
-    eval { require "$classFile.pm" };
+    eval { require "$class_file.pm" };
     die sprintf 'Module Injection Failed: %s', $@ if $@;
 }
 

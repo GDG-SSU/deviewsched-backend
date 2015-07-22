@@ -14,6 +14,7 @@ sub BUILD {
     my $self = shift;
 }
 
+1;
 __END__
 
 =encoding utf-8

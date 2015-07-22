@@ -5,14 +5,11 @@ use Mojo::Base 'Mojolicious';
 sub startup {
     my $self = shift;
 
-    # Documentation browser under "/perldoc"
-    $self->plugin('PODRenderer');
-
     # Router
-    my $r = $self->routes;
+    my $router = $self->routes;
 
     # Normal route to controller
-    $r->get('/')->to('example#welcome');
+    $router->get('/')->to('example#welcome');
 }
 
 1;

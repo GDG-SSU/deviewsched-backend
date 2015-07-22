@@ -15,4 +15,11 @@ sub schedule_list {
     
 }
 
+sub schedule_detail {
+    my $self = shift;
+    my $schedule_id = shift;
+
+
+}
+
 1;

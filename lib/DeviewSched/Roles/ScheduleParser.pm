@@ -17,7 +17,21 @@ has '_ua' => (
 );
 
 requires 'schedule_list';
-requires 'schedule_detail';
+requires 'session_detail';
+
+sub _request {
+    my $self   = shift;
+    my $method = shift;
+    my ($url)  = @_;
+
+    my $res = $self->_ua->$method(@_);
+    unless ($res->is_success) {
+        warn sprintf "[WARN] HTTP Request failed: [%s] %s => %s", 
+            $res->status_line, $method, $url;
+    }
+
+    return $res;
+}
 
 1;
 __END__
@@ -46,13 +60,14 @@ DeviewSched::Roles::ScheduleParser - ScheduleParser Moose Role
         return @schedule_list;
     } 
     
-    sub schedule_detail {
+    sub session_detail {
         my $self = shift;
-        my $schedule = DeviewSched::Schedule->new;
+        my $session_id = shift;
+        my $session    = DeviewSched::Session->new;
 
         # ...
         
-        return $schedule;
+        return $session;
     }
     
     # using existing parser
@@ -61,9 +76,9 @@ DeviewSched::Roles::ScheduleParser - ScheduleParser Moose Role
     my $parser = DeviewSched::ScheduleParser::YYYY->new;
     
     my @schedule_list = $parser->schedule_list;
-    for my $schedule_id (@schedule_list) {
-        my $schedule = $parser->schedule_detail($schedule_id);
-        printf "[Day %d] %s\n", $schedule->day, $schedule->title;
+    for my $session_id (@schedule_list) {
+        my $session = $parser->session_detail($session_id);
+        printf "[Day %d Track %d] %s\n", $session->day, $session->track, $session->title;
     }
 
 =head1 DESCRIPTION
@@ -89,12 +104,12 @@ LWP::UserAgent 인스턴스입니다.
 =item C<schedule_list>
 
 스케쥴 목록을 가져옵니다. 
-각 스케쥴에 대한 id가 담긴 리스트를 반환해야 합니다.
+각 세션에 대한 id가 담긴 리스트를 반환해야 합니다.
 
-=item C<schedule_detail>
+=item C<session_detail>
 
-스케쥴의 상세 정보를 가져옵니다. 
-DeviewSched::Schedule 를 반환해야 합니다.
+세션의 상세 정보를 가져옵니다. 
+DeviewSched::Session 인스턴스를 반환해야 합니다.
 
 =back
 

@@ -1,0 +1,9 @@
+{
+    "name": "DeviewSched",
+    "files": [ {"directory": "./", "recursive": "1"} ],
+    "build": {
+        "build":   "minil build",
+        "test":    "minil test",
+        "install": "minil install"
+    }
+}

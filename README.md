@@ -33,6 +33,4 @@ Deviewsched project repo for Deview 2015
 
 # 작성자 
 
-Gyuhwan Park (unstabler) <doping.cheese@gmail.com>
-
-GDG SSU
+Gyuhwan Park (unstabler) @ [GDG SSU](http://gdg-ssu.github.io/recruit/) <doping.cheese@gmail.com>

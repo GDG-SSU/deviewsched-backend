@@ -47,9 +47,7 @@ L<plenv|https://github.com/tokuhirom/plenv> 또는 L<perlbrew|http://perlbrew.pl
 
 =head1 작성자 
 
-Gyuhwan Park (unstabler) E<lt>doping.cheese@gmail.comE<gt>
-
-GDG SSU
+Gyuhwan Park (unstabler) @ L<GDG SSU|http://gdg-ssu.github.io/recruit/> E<lt>doping.cheese@gmail.comE<gt>
 
 =for comment
 GDG SSU 파이팅!

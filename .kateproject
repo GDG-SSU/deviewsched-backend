@@ -3,5 +3,6 @@
     "files": [ {"directory": "./", "recursive": "1"} ],
     "build": {
         "test":    "perl ./script/deview_sched test",
+        "build":   "perl ./script/deview_sched generate makefile && perl Makefile.PL && make"
     }
 }

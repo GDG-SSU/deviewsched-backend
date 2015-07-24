@@ -7,6 +7,8 @@ use warnings;
 use DBI;
 use DBD::Pg;
 
+use DeviewSched::Schema;
+
 require Exporter;
 
 our @ISA       = qw/Exporter/;
@@ -59,7 +61,7 @@ sub SQL_DROP_TABLES {
 }
 
 sub DB_DEFAULT_ATTRIBUTES () {{
-    AutoCommit => 0,
+    AutoCommit => 1,
     RaiseError => 1,
     pg_enable_utf8 => 1,
 }}
@@ -74,7 +76,11 @@ sub generate_dsn {
 
 sub get_dbh {
     my $db_config = shift;
-    my $dbh = DBI->connect(generate_dsn($db_config),
+    my $get_as_orm_schema = shift || 0;
+
+    my $base_class = ($get_as_orm_schema) ? 'DeviewSched::Schema' : 'DBI';
+
+    my $dbh = $base_class->connect(generate_dsn($db_config),
         $db_config->{username}, $db_config->{password},
         DB_DEFAULT_ATTRIBUTES
     );
@@ -82,4 +88,65 @@ sub get_dbh {
     return $dbh;
 }
 
+
 1;
+__END__
+
+=encoding utf8
+
+=head1 NAME
+
+DeviewSched::Database - 데이터베이스 접근에 관련된 모듈
+
+=head1 SYNOPSIS
+
+    use Mojolicious::Lite;
+    use DeviewSched::ConfigHelper;
+    use DeviewSched::Database qw/get_dbh/;
+    
+    load_config_from_outside(app);
+    
+    my $db_config = app->config->{database};
+    my $dbh = get_dbh($db_config); 
+    
+    # OMGWTF!
+    $dbh->prepare(generate_sql(DROP_ALL_TABLES))->execute;
+
+    # or ..
+    
+    my $schema = get_dbh($db_config, 1);
+    my $rs = $schema->result_set( ... );
+
+
+=head1 DESCRIPTION
+
+DeviewSched::Database는 데이터베이스와 관련된 모듈입니다. DB에 접근하기 위한 핸들 (DBH, DBIx::Class::Schema) 등을 쉽게 취득할 수 있도록 돕습니다. 
+
+=head2 CONSTANTS
+
+=over 4
+
+=item C<SQL_DB_INIT>
+
+데이터베이스 초기화 SQL 쿼리문
+
+=item C<SQL_DROP_TABLES(@tables)>
+
+테이블 드랍 SQL 쿼리문
+
+=back
+
+=head2 METHODS
+
+=over 4 
+
+=item C<generate_dsn($config)>
+
+설정 정보를 기반으로 DSN을 생성합니다.
+
+=item C<get_dbh($config, $get_as_dbix_schema)>
+
+DB에 접속하고 DB 핸들을 취득합니다.
+C<$get_as_dbix_schema>가 설정되어 있으면, DBI  핸들 대신 ORM으로 사용할 수 있는 DBIx::Class::Schema로 반환합니다.
+
+=back

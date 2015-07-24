@@ -13,3 +13,5 @@ __PACKAGE__->has_many(
         'foreign.session_id'   => 'self.id',
     },
 );
+
+1;

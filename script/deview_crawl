@@ -12,6 +12,7 @@ use Coro;
 use Coro::LWP;
 use Coro::Timer;
 
+use DeviewSched::Database qw/get_dbh/;
 use DeviewSched::ConfigHelper qw/load_config_from_outside/;
 
 BEGIN {
@@ -44,12 +45,14 @@ sub init {
 die usage unless @ARGV;
 
 my $year  = shift @ARGV;
-my $parallel_count = shift @ARGV || 3;
+my $parallel_count = shift @ARGV || 5;
 my $class = sprintf "DeviewSched::ScheduleParser::%d", $year;
 
 init($class);
 
-my $parser = $class->new;
+my $parser = $class->new(
+    db_schema => get_dbh(app->config->{database}, 1)
+);
 my @schedule_list = $parser->schedule_list;
 
 my @coros = map { 
@@ -61,9 +64,8 @@ my @coros = map {
                 $task_id, $session_id, scalar @schedule_list;
 
             $parser->session_detail($session_id);
-            # TODO: 일해라!
             
-            Coro::Timer::sleep 5;
+            Coro::Timer::sleep 1;
         }
 
         printf "Task #%d: job finished.\n", $task_id;
@@ -100,7 +102,7 @@ deview_crawl - Deview 웹 사이트를 크롤링 하고 데이터베이스에 �
 
 =item PARALLEL_COUNT
 
-병렬 처리할 개수를 지정합니다. 기본값은 3 입니다.
+병렬 처리할 개수를 지정합니다. 기본값은 5 입니다.
 
 =back
 

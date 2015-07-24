@@ -14,3 +14,4 @@ __PACKAGE__->belongs_to(
     },
 );
 
+1;

@@ -16,6 +16,12 @@ has '_ua' => (
     default =>  sub { LWP::UserAgent->new( agent => _UA_DEFAULT_USERAGENT ) },
 );
 
+has 'db_schema' => (
+    is  => 'ro',
+    isa => 'DeviewSched::Schema',
+    required => 1
+);
+
 requires 'schedule_list';
 requires 'session_detail';
 

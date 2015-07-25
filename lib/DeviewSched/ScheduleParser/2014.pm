@@ -56,10 +56,10 @@ sub session_detail {
     my $res = $self->_request('get', $url);
 
     return unless $res->is_success;
-    return $self->_parse_session_detail($session_id, $res->decoded_content); 
+    return $self->_process_session_detail($session_id, $res->decoded_content); 
 }
 
-sub _parse_session_detail {
+sub _process_session_detail {
     my $self     = shift;
 
     my $session_id = shift;
@@ -67,15 +67,18 @@ sub _parse_session_detail {
     
     my $dom = Mojo::DOM->new($raw_html);
  
-    $self->_parse_session_info($session_id, $dom);
-    $self->_parse_session_speakers($session_id, $dom);
+    my $session_info     = $self->_parse_session_info($dom);
+    my @session_speakers = $self->_parse_session_speakers($dom);
+
+    $self->_insert_session_info($session_id, $session_info);
+    $self->_insert_speaker_info($session_id, $_) for @session_speakers;
 }
 
 sub _parse_session_info {
 
     # TODO: 강의 대상 / 발표 자료 / 동영상 저장
 
-    my ($self, $session_id, $dom) = @_;
+    my ($self, $dom) = @_;
 
     my $info = $dom->at('div.pos_r p.view_info')->find('.av55');
     
@@ -121,7 +124,7 @@ sub _parse_session_info {
         ends_at     => $ends_at,
     );
 
-    $self->_insert_session_info($session_id, \%session_info);
+    return \%session_info;
 }
 
 sub _session_time_to_datetime {
@@ -144,7 +147,9 @@ sub _parse_session_speakers {
 
     # TODO: 홈 페이지 주소 / email 주소 / github, facebook, twt ... 저장
 
-    my ($self, $session_id, $dom) = @_;
+    my ($self, $dom) = @_;
+
+    my @speakers;
 
     my $speakers_info = $dom->at('div.speaker_info')->children('div.speaker_box');
     my $introductions = $dom->at('dl.speaker_intro')->children('dt, dd');
@@ -156,10 +161,10 @@ sub _parse_session_speakers {
         my (undef, $dom_speaker_introduce) = splice @$introductions, 0, 2;
 
         my %speaker = $self->_parse_session_speaker_info($dom_speaker_info, $dom_speaker_introduce); 
-        $self->_insert_speaker_info($session_id, \%speaker);
+        push @speakers, \%speaker;
     }
 
-
+    return @speakers;
 }
 
 sub _parse_session_speaker_info {

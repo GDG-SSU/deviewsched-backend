@@ -68,10 +68,12 @@ sub DB_DEFAULT_ATTRIBUTES () {{
 
 sub generate_dsn {
     my $db_config = shift;
-    return sprintf "dbi:Pg:dbname=%s;host=%s;port=%d",
+    return sprintf(
+        "dbi:Pg:dbname=%s;host=%s;port=%d",
         $db_config->{database},
         $db_config->{host},
-        $db_config->{port};
+        $db_config->{port}
+    );
 }
 
 sub get_dbh {

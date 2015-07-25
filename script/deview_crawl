@@ -46,7 +46,7 @@ die usage unless @ARGV;
 
 my $year  = shift @ARGV;
 my $parallel_count = shift @ARGV || 5;
-my $class = sprintf "DeviewSched::ScheduleParser::%d", $year;
+my $class = sprintf "DeviewSched::ScheduleCrawler::%d", $year;
 
 init($class);
 

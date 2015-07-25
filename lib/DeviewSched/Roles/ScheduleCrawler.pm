@@ -1,4 +1,4 @@
-package DeviewSched::Roles::ScheduleParser;
+package DeviewSched::Roles::ScheduleCrawler;
 use 5.010;
 use strict;
 use warnings;
@@ -46,16 +46,16 @@ __END__
 
 =head1 NAME
 
-DeviewSched::Roles::ScheduleParser - ScheduleParser Moose Role
+DeviewSched::Roles::ScheduleCrawler - ScheduleCrawler Moose Role
 
 =head1 SYNOPSIS
 
     # writing parser
-    package DeviewSched::ScheduleParser::YYYY;
+    package DeviewSched::ScheduleCrawler::YYYY;
     use Moose;
     
-    # implements DeviewSched::Roles::ScheduleParser
-    with 'DeviewSched::Roles::ScheduleParser';
+    # implements DeviewSched::Roles::ScheduleCrawler
+    with 'DeviewSched::Roles::ScheduleCrawler';
     
     sub schedule_list {
         my $self = shift;
@@ -78,8 +78,8 @@ DeviewSched::Roles::ScheduleParser - ScheduleParser Moose Role
     
     # using existing parser
     package Main;
-    use DeviewSched::ScheduleParser::YYYY;
-    my $parser = DeviewSched::ScheduleParser::YYYY->new;
+    use DeviewSched::ScheduleCrawler::YYYY;
+    my $parser = DeviewSched::ScheduleCrawler::YYYY->new;
     
     my @schedule_list = $parser->schedule_list;
     for my $session_id (@schedule_list) {
@@ -89,7 +89,7 @@ DeviewSched::Roles::ScheduleParser - ScheduleParser Moose Role
 
 =head1 DESCRIPTION
 
-DeviewSched::Roles::ScheduleParser는ScheduleParser의 Moose Role입니다.
+DeviewSched::Roles::ScheduleCrawler는ScheduleCrawler의 Moose Role입니다.
 
 =head2 ATTRIBUTES
 
@@ -103,7 +103,7 @@ LWP::UserAgent 인스턴스입니다.
 
 =head2 METHODS
 
-이 Role을 상속하는 ScheduleParser 클래스는 아래 메소드가 반드시 구현되어 있어야 합니다.
+이 Role을 상속하는 ScheduleCrawler 클래스는 아래 메소드가 반드시 구현되어 있어야 합니다.
 
 =over 4
 

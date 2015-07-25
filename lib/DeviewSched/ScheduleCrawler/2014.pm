@@ -1,4 +1,4 @@
-package DeviewSched::ScheduleParser::2014;
+package DeviewSched::ScheduleCrawler::2014;
 use 5.010;
 use utf8;
 use strict;
@@ -12,7 +12,7 @@ use Moose;
 
 use Data::Dumper;
 
-with 'DeviewSched::Roles::ScheduleParser';
+with 'DeviewSched::Roles::ScheduleCrawler';
 
 sub URL_SCHEDULE_LIST         () { 'http://deview.kr/2014/schedule' }
 sub URL_FORMAT_SESSION_DETAIL () { 'http://deview.kr/2014/session?seq=%d' }
@@ -244,5 +244,5 @@ __END__
 
 =head1 NAME
 
-DeviewSched::ScheduleParser::2014 - Deview 2014의 프로그램 목록을 크롤링 합니다
+DeviewSched::ScheduleCrawler::2014 - Deview 2014의 프로그램 목록을 크롤링 합니다
 

@@ -1,8 +1,29 @@
 package DeviewSched::Schema::Result::Session;
 use base qw/DBIx::Class::Core/;
 
-__PACKAGE__->table('DeviewSession');
-__PACKAGE__->add_columns(qw/year id day track session_num title description starts_at ends_at target slide_url video_url/);
+sub NULLABLE () { (is_nullable => 1) }
+
+__PACKAGE__->table('deview_session');
+
+__PACKAGE__->add_columns(
+    year            => { data_type => 'numeric' },
+    id              => { data_type => 'numeric' },
+
+    day             => { data_type => 'numeric' },
+    track           => { data_type => 'numeric' },
+    session_num     => { data_type => 'numeric' },
+
+    title           => { data_type => 'text' },
+    description     => { data_type => 'text' },
+
+    starts_at       => { data_type => 'timestamp' },
+    ends_at         => { data_type => 'timestamp' },
+
+    target          => { data_type => 'text', NULLABLE },
+    slide_url       => { data_type => 'text', NULLABLE },
+    video_url       => { data_type => 'text', NULLABLE },
+
+); 
 
 __PACKAGE__->set_primary_key(qw/year id/);
 

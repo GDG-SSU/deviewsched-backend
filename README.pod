@@ -27,6 +27,10 @@ L<plenv|https://github.com/tokuhirom/plenv>ë‚˜ L<perlbrew|http://perlbrew.pl/>ë¥
 
 =item * DBIx::Class
 
+=item * DBIx::Class::Migration
+
+=item * Facebook::Graph
+
 =item * Coro
 
 =back

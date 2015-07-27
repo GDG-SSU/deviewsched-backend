@@ -1,0 +1,56 @@
+#!/usr/bin/env perl
+use 5.010;
+use strict;
+use warnings;
+
+use lib 'lib';
+
+use Carp;
+use Mojolicious::Lite;
+use DBIx::Class::Migration;
+
+use DeviewSched::Database qw/get_dbh/;
+use DeviewSched::ConfigHelper qw/load_config_from_outside/;
+
+sub init_mirgration () {
+    load_config_from_outside(app);
+    my $migration = DBIx::Class::Migration->new(
+        schema => get_dbh(app->config->{database}, 1)
+    );
+
+    return $migration;
+}
+
+sub prepare {
+    my $migration = shift;
+    $migration->prepare;
+}
+
+sub install {
+    my $migration = shift;
+    $migration->status;
+    $migration->install_if_needed(
+        on_install => sub {
+            say "데이터베이스 초기화 하였습니다.";
+        }
+    );
+
+}
+
+sub upgrade {
+    my $migration = shift;
+    $migration->status;
+    $migration->upgrade;
+}
+
+my $migration;
+eval {$migration = init_mirgration};
+croak sprintf("Migration Script initalization failed: %s", $@) if $@;
+
+my $command = shift @ARGV;
+die unless $command;
+
+prepare($migration) if $command eq "prepare";
+install($migration) if $command eq "install";
+upgrade($migration) if $command eq "upgrade";
+

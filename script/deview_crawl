@@ -13,7 +13,7 @@ use Coro::LWP;
 use Coro::Timer;
 
 use DeviewSched::Database qw/get_dbh/;
-use DeviewSched::ConfigHelper qw/load_config_from_outside/;
+use DeviewSched::ConfigHelper qw/load_config/;
 
 BEGIN {
     binmode "STDOUT", ":encoding(utf8)";
@@ -38,7 +38,7 @@ sub init {
     my ($class) = @_;
     _inject_module($class);
 
-    load_config_from_outside(app);
+    load_config(app);
 }
 
 # init

@@ -10,10 +10,10 @@ use Mojolicious::Lite;
 use DBIx::Class::Migration;
 
 use DeviewSched::Database qw/get_dbh/;
-use DeviewSched::ConfigHelper qw/load_config_from_outside/;
+use DeviewSched::ConfigHelper qw/load_config/;
 
 sub init_mirgration () {
-    load_config_from_outside(app);
+    load_config(app);
     my $migration = DBIx::Class::Migration->new(
         schema => get_dbh(app->config->{database}, 1)
     );

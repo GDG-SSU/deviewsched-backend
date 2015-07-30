@@ -1,7 +1,5 @@
 package DeviewSched::Schema::Result::Speaker;
-use base qw/DBIx::Class::Core/;
-
-sub NULLABLE () { (is_nullable => 1) }
+use base qw/DeviewSched::Schema::Result/;
 
 __PACKAGE__->table('deview_speaker');
 

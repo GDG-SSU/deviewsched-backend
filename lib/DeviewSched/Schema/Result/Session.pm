@@ -1,7 +1,5 @@
 package DeviewSched::Schema::Result::Session;
-use base qw/DBIx::Class::Core/;
-
-sub NULLABLE () { (is_nullable => 1) }
+use base qw/DeviewSched::Schema::Result/;
 
 __PACKAGE__->table('deview_session');
 
@@ -22,7 +20,6 @@ __PACKAGE__->add_columns(
     target          => { data_type => 'text', NULLABLE },
     slide_url       => { data_type => 'text', NULLABLE },
     video_url       => { data_type => 'text', NULLABLE },
-
 ); 
 
 __PACKAGE__->set_primary_key(qw/year id/);

@@ -19,6 +19,7 @@ nytprof.out
 *.bs
 /_eumm/
 
+/public/
 /log/
 *.swp
 *.kate-swp
@@ -27,3 +28,4 @@ pod2htmd.tmp
 deviewsched.conf
 
 /share/fixtures/*/all_tables
+

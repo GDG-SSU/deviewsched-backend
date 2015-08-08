@@ -23,12 +23,33 @@ sub list_sessions {
     my $self = shift;
     my $resultset = $self->db_schema->resultset('Session');
 
-    my @sessions = map { $_->serialize_columns([qw/year id title/]) } $resultset->search({
+    # { 
+    #   tracks => [ 
+    #     { sessions => [{ session 1 }, { session 2 } ... ], }, # track #1
+    #     { sessions => [{ session 5 }, { session 6 } ... ], }, # track #2
+    #     { sessions => [{ session 7 }, { session 8 } ... ], }, # track #3
+    #   ]
+    # }
+    #
+    # 이런 느낌일려나! > <)
+
+    my @tracks;
+
+    my @sessions = $resultset->search({
         year => $self->stash('year'),   
     });
-    
+
+    for my $session (@sessions) {
+        push @{($tracks[$session->track - 1]->{sessions})}, {
+            %{ $session->serialize_columns([qw/id title/]) },
+            speakers => [ map {
+                $_->serialize_columns([qw/name picture/]);
+            } $session->speakers ]
+        };
+    }
+      
     $self->render(json => {
-        sessions_available => \@sessions,
+        tracks => \@tracks, 
     });
 }
 
@@ -68,3 +89,14 @@ sub speakers {
 } 
 
 1;
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+DeviewSched::Controller::Sessions - Deview 세션과 관련된 컨트롤러
+
+=head2 METHODS
+
+

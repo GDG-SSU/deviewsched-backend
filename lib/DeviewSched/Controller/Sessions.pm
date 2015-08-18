@@ -3,7 +3,8 @@ use utf8;
 
 use Data::Dumper;
 
-use Mojo::Base 'Mojolicious::Controller';
+use Mojo::Base 'DeviewSched::Controller';
+
 
 sub list_years {
     my $self = shift;
@@ -63,9 +64,7 @@ sub session_details {
     });
 
     unless (defined $session) {
-        return $self->render(json => {
-            reason => 'the requested resource is not available'
-        }, status => 404);
+        return $self->fail($self->FAIL_RESOURCE_NOT_AVAILABLE);
     }
 
     $self->render(json => $session->serialize);

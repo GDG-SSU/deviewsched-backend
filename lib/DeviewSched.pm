@@ -29,6 +29,15 @@ sub startup {
     $router->get('/:year/list' => [RESTRICT_YEAR, RESTRICT_ID])->to('sessions#list_sessions');
     $router->get('/:year/:id'  => [RESTRICT_YEAR, RESTRICT_ID])->to('sessions#session_details');
     $router->get('/:year/:id/speakers' => [RESTRICT_YEAR, RESTRICT_ID])->to('sessions#speakers');
+
+    my $user = $router->under('/user')->to('authorization#validate');
+    $user->post->to('users#register');
+    $user->delete->to('users#remove');
+    $user->get->to('users#get_info');
+
+    $user->get('/friends')->to('users#friends_list');
+
+
 }
 
 1;

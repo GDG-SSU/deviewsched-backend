@@ -1,4 +1,4 @@
-package DeviewSched::Roles::ScheduleCrawler;
+package DeviewSched::ScheduleCrawler;
 use 5.010;
 use strict;
 use warnings;

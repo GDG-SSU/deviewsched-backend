@@ -12,7 +12,7 @@ use Moose;
 
 use Data::Dumper;
 
-with 'DeviewSched::Roles::ScheduleCrawler';
+with 'DeviewSched::ScheduleCrawler';
 
 sub URL_SCHEDULE_LIST         () { 'http://deview.kr/2014/schedule' }
 sub URL_FORMAT_SESSION_DETAIL () { 'http://deview.kr/2014/session?seq=%d' }

@@ -21,21 +21,24 @@ sub startup {
         return get_dbh($self->config->{database}, 1);
     });
 
-    # Router
+    # Routes
     my $router = $self->routes;
+
 
     $router->get('/years')->to('sessions#list_years');
 
-    $router->get('/:year/list' => [RESTRICT_YEAR, RESTRICT_ID])->to('sessions#list_sessions');
-    $router->get('/:year/:id'  => [RESTRICT_YEAR, RESTRICT_ID])->to('sessions#session_details');
-    $router->get('/:year/:id/speakers' => [RESTRICT_YEAR, RESTRICT_ID])->to('sessions#speakers');
+    my $r_year = $router->under('/:year' => [RESTRICT_YEAR]);
 
-    my $user = $router->under('/user')->to('authorization#validate');
-    $user->post->to('users#register');
-    $user->delete->to('users#remove');
-    $user->get->to('users#get_info');
+    $r_year->get('/list' => [RESTRICT_ID])->to('sessions#list_sessions');
+    $r_year->get('/:id'  => [RESTRICT_ID])->to('sessions#session_details');
+    $r_year->get('/:id/speakers' => [RESTRICT_ID])->to('sessions#speakers');
 
-    $user->get('/friends')->to('users#friends_list');
+    my $r_user = $router->under('/user')->to('authorization#validate');
+    $r_user->post->to('users#register');
+    $r_user->delete->to('users#remove');
+    $r_user->get->to('users#get_info');
+
+    $r_user->get('/friends')->to('users#friends_list');
 
 
 }

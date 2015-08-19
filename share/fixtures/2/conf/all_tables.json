@@ -1,0 +1,29 @@
+{
+   "sets" : [
+      {
+         "quantity" : "all",
+         "class" : "User"
+      },
+      {
+         "quantity" : "all",
+         "class" : "Speaker"
+      },
+      {
+         "class" : "Session",
+         "quantity" : "all"
+      },
+      {
+         "class" : "UserAttendance",
+         "quantity" : "all"
+      }
+   ],
+   "belongs_to" : {
+      "fetch" : 0
+   },
+   "has_many" : {
+      "fetch" : 0
+   },
+   "might_have" : {
+      "fetch" : 0
+   }
+}

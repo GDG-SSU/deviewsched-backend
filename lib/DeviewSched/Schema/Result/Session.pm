@@ -17,9 +17,9 @@ __PACKAGE__->add_columns(
     starts_at       => { data_type => 'timestamp' },
     ends_at         => { data_type => 'timestamp' },
 
-    target          => { data_type => 'text', NULLABLE },
-    slide_url       => { data_type => 'text', NULLABLE },
-    video_url       => { data_type => 'text', NULLABLE },
+    target          => { data_type => 'text', __PACKAGE__->NULLABLE },
+    slide_url       => { data_type => 'text', __PACKAGE__->NULLABLE },
+    video_url       => { data_type => 'text', __PACKAGE__->NULLABLE },
 ); 
 
 __PACKAGE__->set_primary_key(qw/year id/);

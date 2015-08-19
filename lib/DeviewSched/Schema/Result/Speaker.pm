@@ -15,10 +15,10 @@ __PACKAGE__->add_columns(
     introduction    => { data_type => 'text' },
     picture         => { data_type => 'text' },
 
-    email           => { data_type => 'text', NULLABLE },
-    website_url     => { data_type => 'text', NULLABLE },
-    facebook_url    => { data_type => 'text', NULLABLE },
-    github_url      => { data_type => 'text', NULLABLE },
+    email           => { data_type => 'text', __PACKAGE__->NULLABLE },
+    website_url     => { data_type => 'text', __PACKAGE__->NULLABLE },
+    facebook_url    => { data_type => 'text', __PACKAGE__->NULLABLE },
+    github_url      => { data_type => 'text', __PACKAGE__->NULLABLE },
 
 );
 

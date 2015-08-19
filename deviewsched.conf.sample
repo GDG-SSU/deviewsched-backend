@@ -1,4 +1,11 @@
 {
+    
+    facebook => {
+        appid  => '123412354893',
+        secret => 'e67b1b16ae8d4edf37671ec1f5ee17e5'
+    },
+
+
     database => {
         database => 'deviewsched',
         host     => 'db-server.line-friends.domain',

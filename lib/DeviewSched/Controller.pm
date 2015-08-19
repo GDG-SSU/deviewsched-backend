@@ -4,6 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 sub FAIL_RESOURCE_NOT_AVAILABLE       () { (404, "The request resource is not available") }
 sub FAIL_INVALID_AUTHORIZATION_HEADER () { (401, "Invalid Authorization Header") }
+sub FAIL_AUTHORIZATION_FAILED         () { (401, "Authorization Failed")  }
 
 sub fail {
     my $self = shift;

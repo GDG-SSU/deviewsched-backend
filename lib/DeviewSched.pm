@@ -45,9 +45,12 @@ sub startup {
     $r_year->get('/:id'  => [RESTRICT_ID])->to('sessions#session_details');
     $r_year->get('/:id/speakers' => [RESTRICT_ID])->to('sessions#speakers');
 
+
+    # 다른 라우트에도 이름을 붙여야 할 것인가.. 말아야 할 것인가..
+    # (::Controller::Authorization::find_user에서 라우트 이름으로 사용자 등록인지 구분하고 있음) 
     my $r_user = $router->under('/user')->to('authorization#validate');
-    $r_user->post->to('users#register', skip_find_user => 1 ); # 회원 등록에서는 토큰을 체크하지 않습니다
-    $r_user->delete->to('users#remove');
+    $r_user->post->to('users#register')->name('register_user');
+    $r_user->delete->to('users#delete');
     $r_user->get->to('users#get_info');
 
     $r_user->get('/friends')->to('users#friends_list');

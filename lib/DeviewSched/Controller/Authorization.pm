@@ -109,8 +109,7 @@ sub find_user {
     my $self  = shift;
     my $token = shift;
 
-    my $skip_find_user = $self->stash('skip_find_user');
-    return -1 if $skip_find_user;
+    return -1 if $self->current_route eq "register_user";
 
     my $resultset = $self->db_schema->resultset('User');
     my ($user) = $resultset->search({

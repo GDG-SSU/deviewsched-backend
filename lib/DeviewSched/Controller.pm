@@ -6,6 +6,9 @@ sub FAIL_RESOURCE_NOT_AVAILABLE       () { (404, "The request resource is not av
 sub FAIL_INVALID_AUTHORIZATION_HEADER () { (401, "Invalid Authorization Header") }
 sub FAIL_AUTHORIZATION_FAILED         () { (401, "Authorization Failed")  }
 
+sub FAIL_INVALID_TOKEN                () { (401, "Invalid Token") }
+sub FAIL_TOKEN_EXPIRED                () { (401, "Token Expired") }
+
 sub fail {
     my $self = shift;
     my ($code, $message) = @_;
@@ -17,6 +20,9 @@ sub fail {
 sub render_wrap {
     my $self = shift;
     my ($code, $content) = @_;
+
+    # 좀 더 깔끔하게 못하나!
+    $code = $self->stash('override_return_code') if $self->stash('override_return_code');
 
     my $is_success = ($code % 100 == 2) ? Mojo::JSON->true : Mojo::JSON->false;
 

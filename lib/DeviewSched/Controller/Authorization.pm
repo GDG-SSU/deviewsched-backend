@@ -24,14 +24,17 @@ sub validate {
             my $auth_data;
             
             # 그냥 if문만 달랑 만들어놓고 last를 했더니 오류가 나더라.. ㅜㅜ 왜지?!?! 
-            $auth_data = eval { decode_json(decode_base64($+{AuthorizationData})) } or die $@;
+            $auth_data = eval { decode_json(decode_base64($+{AuthorizationData})) } or last VALIDATION;
             $self->stash(auth_data => $auth_data);
 
+            my $is_signature_valid = validate_signature($request, $auth_data, $key);
+            my $is_user_found      = $self->find_user($auth_data->{token});
+
             # 확인 끝났으니 다음으로 넘어갑시다
-            return 1 if validate_signature($request, $auth_data, $key);
+            return 1 if $is_signature_valid && $is_user_found;
 
             # 아님 망고 
-            return $self->fail($self->FAIL_FAILED_AUTHORIZATION);
+            return $self->fail($self->FAIL_AUTHORIZATION_FAILED);
         }
     }
 
@@ -41,16 +44,21 @@ sub validate {
 sub validate_signature {
     my ($request, $auth_data, $key) = @_;
 
-    my $signature           = $auth_data->{signature};
+    my $signature = $auth_data->{signature};
+    my $timestamp = $auth_data->{timestamp};    
+
     my $generated_signature = generate_signature($request, $auth_data, $key);
 
-    if (defined $signature           &&
-        defined $generated_signature && 
-        $signature eq $generated_signature) {
-        return 1;
-    }
+    return 1 if defined $signature                 &&
+                defined $generated_signature       &&
+                $signature eq $generated_signature &&
+                is_timestamp_valid($timestamp);
+}
 
-    return;
+sub is_timestamp_valid {
+    my $timestamp = shift;
+    
+    return 1 if abs(time - $timestamp) <= 60 * 3;
 }
 
 sub generate_signature {
@@ -69,7 +77,11 @@ sub generate_signature {
                   defined $timestamp && 
                   defined $nonce;
 
-    my $raw_signature = join ":", ($timestamp, $request->method, $request->url->to_abs->path, $token, $serialized_parameters);
+    my $raw_signature = join ":", ($timestamp, 
+                                   $request->method, 
+                                   $request->url->to_abs->path, 
+                                   $token, 
+                                   $serialized_parameters);
 
     my $signature = encode_base64(hmac_sha1($raw_signature, ($key . $nonce)));
     $signature =~ s/[\r\n]//g;
@@ -93,6 +105,25 @@ sub serialize_parameters {
     return substr $serialized_parameters, 0, -1;
 }
 
+sub find_user {
+    my $self  = shift;
+    my $token = shift;
+
+    my $skip_find_user = $self->stash('skip_find_user');
+    return -1 if $skip_find_user;
+
+    my $resultset = $self->db_schema->resultset('User');
+    my ($user) = $resultset->search({
+        fb_token => $token, 
+    });
+
+    if (defined $user) {
+        $self->stash(user => $user);
+        return $user->id;
+    }
+}
+
+
 1;
 __END__
 
@@ -102,7 +133,3 @@ __END__
 
 DeviewSched::Controller::Authorization - API 인증과 관련된 컨트롤러
 
-=head1 WARNING
-
-인증 기능은 아직 올바른 헤더인지 확인만 하고 넘겨주니 아직 신뢰하지 마십시오.
-(URL이나 타임스탬프 체크는 아직 못 합니다)

@@ -16,9 +16,21 @@ sub startup {
     load_config($self);
 
     # Helper
+    # TODO: Helper 기능을 다른 패키지로 나눠야 하는건 아닐까 싶은데 
     $self->helper('db_schema' => sub {
         my $self = shift;
         return get_dbh($self->config->{database}, 1);
+    });
+
+    $self->helper('fb_graph' => sub {
+        my $self  = shift;
+        my $token = shift;
+        
+        return Facebook::Graph->new(
+            ($token) ? (access_token => $token) :
+                       (app_id => $self->config->{facebook}->{appid},
+                        secret => $self->config->{facebook}->{secret})
+        );
     });
 
     # Routes
@@ -34,7 +46,7 @@ sub startup {
     $r_year->get('/:id/speakers' => [RESTRICT_ID])->to('sessions#speakers');
 
     my $r_user = $router->under('/user')->to('authorization#validate');
-    $r_user->post->to('users#register');
+    $r_user->post->to('users#register', skip_find_user => 1 ); # 회원 등록에서는 토큰을 체크하지 않습니다
     $r_user->delete->to('users#remove');
     $r_user->get->to('users#get_info');
 

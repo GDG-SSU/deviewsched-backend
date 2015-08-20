@@ -6,6 +6,7 @@ __PACKAGE__->table('deview_user');
 __PACKAGE__->add_columns(
     # facebook user id
     id            => { data_type => 'bigint' },
+    fb_token      => { data_type => 'text' },
 
     name          => { data_type => 'text' },
     picture       => { data_type => 'text' },

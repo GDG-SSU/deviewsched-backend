@@ -12,6 +12,13 @@ use DBIx::Class::Migration;
 use DeviewSched::Database qw/get_dbh/;
 use DeviewSched::ConfigHelper qw/load_config/;
 
+sub usage () {
+<<USAGE
+$0 - DeviewSched::Backend db migration helper script
+usage: $0 (prepare|install|upgrade)
+USAGE
+}
+
 sub init_mirgration () {
     load_config(app);
     my $migration = DBIx::Class::Migration->new(
@@ -48,7 +55,7 @@ eval {$migration = init_mirgration};
 croak sprintf("Migration Script initalization failed: %s", $@) if $@;
 
 my $command = shift @ARGV;
-die unless $command;
+die usage unless $command;
 
 prepare($migration) if $command eq "prepare";
 install($migration) if $command eq "install";

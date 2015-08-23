@@ -32,8 +32,7 @@ sub schedule_list {
     my $self = shift;
     my $res  = $self->_request('get', URL_SCHEDULE_LIST);
     
-    return unless $res->is_success;
-    return $self->_parse_schedule_list($res->decoded_content);
+    return $self->_parse_schedule_list($res->decoded_content) if $res->is_success;
 }
 
 sub _parse_schedule_list {

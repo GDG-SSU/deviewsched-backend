@@ -63,14 +63,21 @@ my @coros = map {
             printf "Task #%d: Crawling %d (%02d remaining)\n", 
                 $task_id, $session_id, scalar @schedule_list;
 
-            $parser->session_detail($session_id);
-            
+            my ($session, $speakers) = $parser->session_detail($session_id);
+
+            eval {
+                $session->update_or_insert;
+                $_->update_or_insert for @$speakers;
+            };
+            warn "Task update or insert failed: $@" if $@;
+
             Coro::Timer::sleep 1;
         }
 
         printf "Task #%d: job finished.\n", $task_id;
     }, $_);
     $c->ready;
+
     $c;
 } 1..$parallel_count;
 

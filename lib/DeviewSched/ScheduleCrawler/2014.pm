@@ -70,8 +70,10 @@ sub _process_session_detail {
     my $session_info     = $self->_parse_session_info($dom);
     my @session_speakers = $self->_parse_session_speakers($dom);
 
-    $self->_insert_session_info($session_id, $session_info);
-    $self->_insert_speaker_info($session_id, $_) for @session_speakers;
+    my $session  = $self->_build_session_info($session_id, $session_info);
+    my @speakers = map { $self->_build_speaker_info($session_id, $_) } @session_speakers;
+
+    return ($session, \@speakers);
 }
 
 sub _parse_session_info {
@@ -79,7 +81,6 @@ sub _parse_session_info {
     # TODO: 강의 대상 / 발표 자료 / 동영상 저장
 
     my ($self, $dom) = @_;
-
     my $info = $dom->at('div.pos_r p.view_info')->find('.av55');
     
     my $i = 0;
@@ -141,8 +142,6 @@ sub _session_time_to_datetime {
     return $new_date;
 }
 
-
-
 sub _parse_session_speakers {
 
     # TODO: 홈 페이지 주소 / email 주소 / github, facebook, twt ... 저장
@@ -177,63 +176,12 @@ sub _parse_session_speaker_info {
         name            => $strong->text,
         organization    => $dom_organization->text,
         # <dd></dd> 태그에 자식 노드가 있는 경우도 있어서 text 대신 all_text를 사용 
-        introduction   => $dom_speaker_introduce->all_text,
+        introduction    => $dom_speaker_introduce->all_text,
 
         picture => ($dom_speaker_info->at('span.speaker_p > img')->attr('src') || ''),
     );
 
     return %speaker;
-}
-
-sub _insert_speaker_info {
-    my ($self, $session_id, $speaker_info) = @_;
-
-    my $resultset = $self->db_schema->resultset('Speaker');
-    my $count = $resultset->search({
-        session_year => YEAR,
-        session_id   => $session_id,
-        name         => $speaker_info->{name},
-    }, { select => 'count' })->count;
-
-    if ($count) {
-        warn sprintf "[SKIP] Already Exists: %d/%d %s\n", YEAR, $session_id, $speaker_info->{name}; 
-        return;
-    }
- 
-
-    $resultset->create({
-        session_year => YEAR,
-        session_id   => $session_id,
-
-        %$speaker_info,
-    });
-    
-}
-
-sub _insert_session_info {
-
-    # TODO: 정보 갱신시 DB 내의 정보 역시 업데이트 되어야 함
-    #       이미 끝난 행사라 그럴 일 없겠지만.. (´・ω・｀)
-
-    my ($self, $session_id, $session_info) = @_;
-
-    my $resultset = $self->db_schema->resultset('Session');
-    my $count = $resultset->search({
-        year => YEAR,
-        id   => $session_id,
-    }, { select => 'count' })->count;
-
-    if ($count) {
-        warn sprintf "[SKIP] Already Exists: %d/%d %s\n", YEAR, $session_id, $session_info->{title}; 
-        return;
-    }
-    
-    $resultset->create({
-        year => YEAR,
-        id   => $session_id,
-
-        %$session_info
-    });
 }
 
 1;

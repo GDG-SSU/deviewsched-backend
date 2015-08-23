@@ -51,9 +51,7 @@ sub _build_session_info {
         id   => $session_id,
     });
 
-    while (my ($key, $value) = each %$session_info) {
-        $session->$key($value);
-    }
+    $self->_map_column($session, $session_info);
 
     return $session;
 }
@@ -68,13 +66,20 @@ sub _build_speaker_info {
         name         => $speaker_info->{name},
     });
     
-    while (my ($key, $value) = each %$speaker_info) {
-        $speaker->$key($value);
-    }
+    $self->_map_column($speaker, $speaker_info);
 
     return $speaker;
 }
 
+sub _map_column {
+    my ($self, $row, $info) = @_;
+
+    for my $column ($row->columns) {
+        $row->$column(
+            $info->{$column}
+        ) if $info->{$column};
+    }
+}
 
 1;
 __END__

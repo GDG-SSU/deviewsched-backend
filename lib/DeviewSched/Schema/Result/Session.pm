@@ -9,7 +9,6 @@ __PACKAGE__->add_columns(
 
     day             => { data_type => 'numeric' },
     track           => { data_type => 'numeric' },
-    session_num     => { data_type => 'numeric' },
 
     title           => { data_type => 'text' },
     description     => { data_type => 'text' },

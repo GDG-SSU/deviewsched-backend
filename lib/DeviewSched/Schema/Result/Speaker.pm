@@ -13,7 +13,8 @@ __PACKAGE__->add_columns(
     name            => { data_type => 'text' },
     organization    => { data_type => 'text' },
     introduction    => { data_type => 'text' },
-    picture         => { data_type => 'text' },
+
+    picture         => { data_type => 'text', __PACKAGE__->NULLABLE },
 
     email           => { data_type => 'text', __PACKAGE__->NULLABLE },
     website_url     => { data_type => 'text', __PACKAGE__->NULLABLE },

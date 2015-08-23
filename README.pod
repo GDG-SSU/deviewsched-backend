@@ -21,6 +21,8 @@ L<plenv|https://github.com/tokuhirom/plenv>ë‚˜ L<perlbrew|http://perlbrew.pl/>ë¥
 
 =item * Moose
 
+=item * JSON
+
 =item * DBI
 
 =item * DBD::Pg
@@ -32,6 +34,12 @@ L<plenv|https://github.com/tokuhirom/plenv>ë‚˜ L<perlbrew|http://perlbrew.pl/>ë¥
 =item * Facebook::Graph
 
 =item * Coro
+
+=item * MIME::Base64
+
+=item * URL::Encode
+
+=item * Digest::HMAC_SHA1
 
 =back
 

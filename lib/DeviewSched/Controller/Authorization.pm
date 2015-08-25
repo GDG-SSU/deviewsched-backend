@@ -24,8 +24,9 @@ sub validate {
             my $auth_data;
             
             # 그냥 if문만 달랑 만들어놓고 last를 했더니 오류가 나더라.. ㅜㅜ 왜지?!?! 
-            $auth_data = eval { decode_json(decode_base64($+{AuthorizationData})) };
-            return $self->fail($self->FAIL_INVALID_AUTHORIZATION_HEADER, $@) if $@;
+            $auth_data = eval { decode_json(decode_base64($+{AuthorizationData})) }
+                or return $self->fail($self->FAIL_AUTHORIZATION_FAILED,
+                                      $self->FAIL_REASON_MALFORMED_JSON);
 
             $self->stash(auth_data => $auth_data);
 
@@ -40,7 +41,7 @@ sub validate {
         }
     }
 
-    return $self->fail($self->FAIL_INVALID_AUTHORIZATION_HEADER);
+    return $self->fail($self->FAIL_INVALID_AUTHORIZATION_HEADER, $self->FAIL_REASON_AUTHORIZATION_HEADER);
 }
 
 sub validate_signature {

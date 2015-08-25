@@ -61,7 +61,7 @@ sub validate_signature {
 sub is_timestamp_valid {
     my $timestamp = shift;
     
-    return 1 if abs(time - $timestamp) <= 60 * 3;
+    return 1 if abs(time - $timestamp) <= 60 * 30;
 }
 
 sub generate_signature {

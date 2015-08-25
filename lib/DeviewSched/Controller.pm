@@ -11,9 +11,11 @@ sub FAIL_TOKEN_EXPIRED                () { (401, "Token Expired") }
 
 sub fail {
     my $self = shift;
-    my ($code, $message) = @_;
+    my ($code, $reason, $detail) = @_;
 
-    $self->render_wrap($code, { reason => $message });
+    $reason .= sprintf(" (%s)", $detail) if defined $detail;
+    
+    $self->render_wrap($code, { reason => $reason });
     return undef;
 }
 

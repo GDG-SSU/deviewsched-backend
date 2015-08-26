@@ -18,7 +18,12 @@ sub serialize_columns {
     my $hashref = {};
 
     for my $column (@columns) {
-        $hashref->{$column} = $self->$column || undef;
+        my $value = $self->$column || undef;
+
+        # DateTime 객체인 경우 타임스탬프로 변환
+        $value = $value->epoch if ref $value eq "DateTime";
+
+        $hashref->{$column} = $value;
     } 
 
     return $hashref;

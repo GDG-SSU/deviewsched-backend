@@ -1,6 +1,8 @@
 package DeviewSched::Schema::Result::Session;
 use base qw/DeviewSched::Schema::Result/;
 
+__PACKAGE__->load_components(qw/InflateColumn::DateTime/);
+
 __PACKAGE__->table('deview_session');
 
 __PACKAGE__->add_columns(

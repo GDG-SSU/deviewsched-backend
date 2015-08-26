@@ -1,10 +1,11 @@
 package DeviewSched::Controller::Sessions;
 use utf8;
 
-use Data::Dumper;
-
 use Mojo::Base 'DeviewSched::Controller';
+use Time::HiRes qw/time/;
 
+sub COLUMNS_LIST_SESSIONS_SESSION () { qw/id track day title starts_at ends_at/ }
+sub COLUMNS_LIST_SESSIONS_SPEAKER () { qw/name picture/ }
 
 sub list_years {
     my $self = shift;
@@ -24,33 +25,39 @@ sub list_sessions {
     my $self = shift;
     my $resultset = $self->db_schema->resultset('Session');
 
-    # { 
-    #   tracks => [ 
-    #     { sessions => [{ session 1 }, { session 2 } ... ], }, # track #1
-    #     { sessions => [{ session 5 }, { session 6 } ... ], }, # track #2
-    #     { sessions => [{ session 7 }, { session 8 } ... ], }, # track #3
-    #   ]
-    # }
-    #
-    # 이런 느낌일려나! > <)
-
-    my @tracks;
+    my @data;
 
     my @sessions = $resultset->search({
         year => $self->stash('year'),   
+    }, {
+
+        select => [
+            (map { "me.$_" } COLUMNS_LIST_SESSIONS_SESSION),
+            (map { "speakers.$_" } COLUMNS_LIST_SESSIONS_SPEAKER),
+        ],
+
+        join     => 'speakers',
+        prefetch => 'speakers',
+        order_by => {
+            -asc => 'starts_at'
+        }
     });
 
     for my $session (@sessions) {
-        push @{($tracks[$session->track - 1]->{sessions})}, {
-            %{ $session->serialize_columns([qw/id title/]) },
+
+        my $day   = $session->day;
+        my $track = $session->track;
+
+        push @{($data[$day - 1]->{tracks}[$track - 1]->{sessions})}, {
+            %{ $session->serialize_columns([COLUMNS_LIST_SESSIONS_SESSION]) },
             speakers => [ map {
-                $_->serialize_columns([qw/name picture/]);
+                $_->serialize_columns([COLUMNS_LIST_SESSIONS_SPEAKER]);
             } $session->speakers ]
         };
     }
-      
+     
     $self->render(json => {
-        tracks => \@tracks, 
+        days => \@data, 
     });
 }
 
@@ -96,6 +103,6 @@ __END__
 
 DeviewSched::Controller::Sessions - Deview 세션과 관련된 컨트롤러
 
-=head2 METHODS
+=head2 ENDPOINTS
 
 

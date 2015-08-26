@@ -30,7 +30,7 @@ sub render_wrap {
     # 좀 더 깔끔하게 못하나!
     $code = $self->stash('override_return_code') if $self->stash('override_return_code');
 
-    my $is_success = ($code % 100 == 2) ? Mojo::JSON->true : Mojo::JSON->false;
+    my $is_success = ($code / 100 == 2) ? Mojo::JSON->true : Mojo::JSON->false;
 
     return $self->render(status => $code, json => { 
         is_success => $is_success, 

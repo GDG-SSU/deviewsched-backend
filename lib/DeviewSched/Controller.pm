@@ -9,6 +9,7 @@ sub FAIL_AUTHORIZATION_FAILED         () { (401, "Authorization Failed")  }
 sub FAIL_INVALID_TOKEN                () { (401, "Invalid Token") }
 sub FAIL_TOKEN_EXPIRED                () { (401, "Token Expired") }
 
+sub FAIL_BAD_PARAMETERS               () { (401, "Bad Parameters") }
 
 sub FAIL_REASON_MALFORMED_JSON        () { "Malformed JSON" }
 sub FAIL_REASON_AUTHORIZATION_HEADER  () { "Authorization header not defined" }

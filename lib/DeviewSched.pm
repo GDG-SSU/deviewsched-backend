@@ -41,8 +41,8 @@ sub startup {
 
     my $r_year = $router->under('/:year' => [RESTRICT_YEAR]);
 
-    $r_year->get('/list' => [RESTRICT_ID])->to('sessions#list_sessions');
-    $r_year->get('/:id'  => [RESTRICT_ID])->to('sessions#session_details');
+    $r_year->get('/list'         => [RESTRICT_ID])->to('sessions#list_sessions');
+    $r_year->get('/:id'          => [RESTRICT_ID])->to('sessions#session_details');
     $r_year->get('/:id/speakers' => [RESTRICT_ID])->to('sessions#speakers');
 
 
@@ -52,12 +52,15 @@ sub startup {
 
     $r_user->post  ->to('users#register')->name('register_user');
     $r_user->delete->to('users#delete');
-
+    
+    # user schedule
     $r_user->get   ('/schedule')    ->to('user_schedule#list');
+    $r_user->get   ('/schedule/all')->to('user_schedule#list');
     $r_user->put   ('/schedule')    ->to('user_schedule#register');
-    $r_user->delete('/schedule')    ->to('user_schedule#delete');
-    $r_user->delete('/schedule/all')->to('user_schedule#delete_all');
+    $r_user->delete('/schedule')    ->to('user_schedule#unregister');
+    $r_user->delete('/schedule/all')->to('user_schedule#unregister_all');
 
+    # friends
     $r_user->get('/friends')->to('users#friends_list');
 
 

@@ -51,7 +51,8 @@ sub startup {
     my $r_user = $router->under('/user')->to('authorization#validate');
     $r_user->post->to('users#register')->name('register_user');
     $r_user->delete->to('users#delete');
-    $r_user->get->to('users#get_info');
+
+
 
     $r_user->get('/friends')->to('users#friends_list');
 

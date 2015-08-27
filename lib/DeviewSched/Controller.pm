@@ -15,7 +15,12 @@ sub FAIL_REASON_AUTHORIZATION_HEADER  () { "Authorization header not defined" }
 
 sub fail {
     my $self = shift;
-    my ($code, $reason, $detail) = @_;
+    my ($code, $reason, $detail, $log) = @_;
+
+    $self->app->log->error(
+        (sprintf "%s %s:", $self->req->method, $self->req->url),
+        $log
+    ) if defined $log;
 
     $reason .= sprintf(" (%s)", $detail) if defined $detail;
     

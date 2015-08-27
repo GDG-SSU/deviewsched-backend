@@ -49,14 +49,21 @@ sub startup {
     # 다른 라우트에도 이름을 붙여야 할 것인가.. 말아야 할 것인가..
     # (::Controller::Authorization::find_user에서 라우트 이름으로 사용자 등록인지 구분하고 있음) 
     my $r_user = $router->under('/user')->to('authorization#validate');
-    $r_user->post->to('users#register')->name('register_user');
+
+    $r_user->post  ->to('users#register')->name('register_user');
     $r_user->delete->to('users#delete');
 
-
+    $r_user->get   ('/schedule')    ->to('user_schedule#list');
+    $r_user->put   ('/schedule')    ->to('user_schedule#register');
+    $r_user->delete('/schedule')    ->to('user_schedule#delete');
+    $r_user->delete('/schedule/all')->to('user_schedule#delete_all');
 
     $r_user->get('/friends')->to('users#friends_list');
 
 
+    $router->any([qw/SORRY/] => '/im_late')->to(cb => sub {
+        shift->render(text => "계속 늦어져서 미안해요 > <);");
+    });
 }
 
 1;

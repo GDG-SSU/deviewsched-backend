@@ -12,8 +12,13 @@ __PACKAGE__->add_columns(
     picture       => { data_type => 'text' },
 );
 
-
-
 __PACKAGE__->set_primary_key(qw/id/);
+
+__PACKAGE__->has_many(
+    'schedules' => 'DeviewSched::Schema::Result::UserSchedule',
+    {
+        'foreign.user_id' => 'self.id'
+    },
+);
 
 1;

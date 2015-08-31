@@ -13,13 +13,21 @@ sub RESTRICT_ID   () { (id   => qr/\d+/) }
 sub startup {
     my $self = shift;
 
+
+
     load_config($self);
 
     # Helper
     # TODO: Helper 기능을 다른 패키지로 나눠야 하는건 아닐까 싶은데 
     $self->helper('db_schema' => sub {
         my $self = shift;
-        return get_dbh($self->config->{database}, 1);
+
+        # 한 리퀘스트 내에서는 같은 스키마를 재사용 하도록 합니다.
+        unless (defined $self->stash('_db_schema')) {
+            $self->stash('_db_schema' => get_dbh($self->config->{database}, 1));
+        }
+
+        return $self->stash('_db_schema');
     });
 
     $self->helper('fb_graph' => sub {
@@ -32,6 +40,8 @@ sub startup {
                         secret => $self->config->{facebook}->{secret})
         );
     });
+
+    $self->plugin('PODRenderer');
 
     # Routes
     my $router = $self->routes;
@@ -54,11 +64,11 @@ sub startup {
     $r_user->delete->to('users#delete');
     
     # user schedule
-    $r_user->get   ('/schedule')    ->to('user_schedule#list');
-    $r_user->get   ('/schedule/all')->to('user_schedule#list');
-    $r_user->put   ('/schedule')    ->to('user_schedule#register');
-    $r_user->delete('/schedule')    ->to('user_schedule#unregister');
-    $r_user->delete('/schedule/all')->to('user_schedule#unregister_all');
+    $r_user->get('/schedule')    ->to('user_schedule#list');
+    $r_user->get('/schedule/all')->to('user_schedule#list', fetch_all => 1);
+
+    $r_user->any([qw/PUT DELETE/] => '/schedule')    ->to('user_schedule#process');
+    $r_user->any([qw/PUT DELETE/] => '/schedule/all')->to('user_schedule#process_all');
 
     # friends
     $r_user->get('/friends')->to('users#friends_list');

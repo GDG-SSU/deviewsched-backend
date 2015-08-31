@@ -103,6 +103,26 @@ __END__
 
 DeviewSched::Controller::Sessions - Deview 세션과 관련된 컨트롤러
 
-=head2 ENDPOINTS
+=head1 ENDPOINTS
 
+=over 4
 
+=item C<GET /years>
+
+세션 정보가 사용 가능한 년도의 목록을 반환합니다.
+    
+    { "years_available": [2014, 2015] }
+
+=item C<GET /%year%/list>
+
+C<%year%> 년도의 세션 목록을 출력합니다.
+
+=item C<GET /%year%/%session_id%>
+
+C<%year%> 년도의 ID가 C<%session_id%>인 세션의 정보를 출력합니다.
+
+=item C<GET /%year%/%session_id%/speakers>
+
+C<%year%> 년도의 ID가 C<%session_id%>인 세션의 발표자 목록을 출력합니다. 
+
+=back

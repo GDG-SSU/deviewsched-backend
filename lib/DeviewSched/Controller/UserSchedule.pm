@@ -3,6 +3,8 @@ use utf8;
 
 use Mojo::Base qw/DeviewSched::Controller/;
 
+sub METHOD_PUT    () { 'PUT' }
+sub METHOD_DELETE () { 'DELETE' }
 sub COLUMNS_LIST_SCHEDULES_SESSION () { qw/id track day title starts_at ends_at/ }
 
 sub list {
@@ -12,8 +14,8 @@ sub list {
     my ($year, $day)       = map { $self->param($_) } qw/year day/;
     
     return $self->fail($self->FAIL_BAD_PARAMETERS) 
-        if (!(( defined $fetch_all && defined $year) ||
-              ( defined $year && defined $day)));
+        if (!(( defined $fetch_all && defined $year ) ||
+              ( defined $year && defined $day )));
 
 
     my $search_conditions = {
@@ -29,7 +31,7 @@ sub list {
 
     my $schedule_rs = $user->schedules->search_rs($search_conditions, {
         select => [
-            (map { "session.$_" } COLUMNS_LIST_SCHEDULES_SESSION) 
+            ( map { "session.$_" } COLUMNS_LIST_SCHEDULES_SESSION ) 
         ],
 
         join     => 'session',
@@ -38,9 +40,10 @@ sub list {
 
     my @sessions;
 
+    # TODO: 발표자 정보 포함하기
     map { 
         push @sessions, $_->session->serialize_columns(
-            COLUMNS_LIST_SCHEDULES_SESSION
+            [COLUMNS_LIST_SCHEDULES_SESSION]
         ); 
     } $schedule_rs->all; 
     
@@ -49,38 +52,171 @@ sub list {
     });
 }
 
-sub register {
+sub process {
     my $self = shift;
 
-    my $user = $self->stash('user');
-    my ($session_year, $session_id) = map { $self->param } qw/year id/;
-
-
-}
-
-sub unregister {
-    my $self = shift;
-
-}
-
-sub unregister_all {
-    my $self = shift;
-
-}
-
-sub _find_collisions {
-    my $self    = shift;
-
-    my $session   = shift;
+    my $user   = $self->stash('user');
+    my $method = $self->req->method;
+    my ($session_year, $session_id) = map { $self->param($_) } qw/year id/;
     
-    my $resultset = $self->db_schema->resultset('Session');
-    my (@result) = $resultset->search({
-        year => $session->year,
-        day  => $session->day,
+    if ($method eq METHOD_PUT) { 
+        my $schedule     = eval { $self->_register_schedule($user, $session_year, $session_id) } 
+                           or return $self->fail($self->FAIL_SCHEDULE_INSERTION, $@, $@);
 
+        my $collision_id = $self->stash('collision_id');
+        
+        if (defined $collision_id) {
+            return $self->render_wrap(200, { collision_id => $collision_id });
+        } else {
+            return $self->render_wrap(201);
+        }
+    } elsif ($method eq METHOD_DELETE) {
+        my $schedule = $self->_find_schedule($user, $session_year, $session_id);
+
+        if (defined $schedule) {
+            $schedule->delete;
+            return $self->render_wrap(200);
+        } else {
+            return $self->fail($self->FAIL_SCHEDULE_NOT_FOUND);
+        }
+    }
+
+    return $self->fail($self->FAIL_UNKNOWN_ERROR);
+}
+
+sub process_all {
+    my $self = shift;
+
+    my $user   = $self->stash('user');
+    my $method = $self->req->method;
+    my ($session_year, $data) = map { $self->param($_) } qw/year data/;
+
+    # remove all schedules
+    my $resultset = $self->db_schema->resultset('UserSchedule');
+    $resultset->delete_all({
+        user_id      => $user->id,
+        session_year => $session_year
     });
 
+
+    if ($method eq METHOD_PUT) { 
+        my @sessions = split ",", $data;
+        
+        # 트랜잭션 개시
+        my $tx_guard = $self->db_schema->txn_scope_guard;
+
+        for my $session_id (@sessions) {
+            eval {
+                $self->_register_schedule($self, $session_year, $session_id);
+            } or return $self->fail($self->FAIL_SCHEDULE_INSERTION); 
+        }
+
+        # 트랜잭션 커밋
+        $tx_guard->commit;
+    }
+
+    return $self->render_wrap(200);
+}
+
+sub _register_schedule {
+    my $self = shift;
+    my ($user, $session_year, $session_id, $db_schema) = @_;
+
+    my $session = $self->_find_session($session_year, $session_id);
+    die "Session not found" unless defined $session;   
+    
+    my $old_schedule = $self->_find_collision($user, $session);
+    if (defined $old_schedule) {
+        $self->stash('collision_id' => $old_schedule->session_id);
+        $old_schedule->delete;
+    }
+
+    my $resultset = $self->db_schema->resultset('UserSchedule');
+    my $schedule  = $resultset->create({
+        user_id      => $user->id,
+
+        session_year => $session->year,
+        session_id   => $session->id,
+    }); 
+    
+    return $schedule;
+}
+
+sub _find_schedule {
+    my $self = shift;
+    my ($user, $session_year, $session_id) = @_;
+
+    my ($schedule) = $user->schedules->search({
+        session_year => $session_year,
+        session_id   => $session_id
+    });
+
+    return $schedule;
+}
+
+sub _find_session {
+    my $self = shift;
+    my ($session_year, $session_id) = @_;
+
+    my ($session) = $self->db_schema->resultset('Session')->search({
+        year => $session_year,
+        id   => $session_id
+    });
+
+    return $session;
+}
+
+sub _find_collision {
+    my $self = shift;
+    my ($user, $session) = @_;
+    
+    my $schedule_rs = $user->schedules->search_rs({
+        # TODO : 충돌 찾기
+        'me.user_id' => $user->id,
+
+        'cast(extract(epoch from session.starts_at) as integer)' => $session->starts_at->epoch,
+        'cast(extract(epoch from session.ends_at) as integer)'   => $session->ends_at->epoch
+    }, {
+        join     => 'session',
+        prefetch => 'session'
+    });
+   
+    return $schedule_rs->first;
 }
 
 
 1;
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+DeviewSched::Controller::UserSchedule - 사용자 스케줄 API 컨트롤러
+
+=head1 ENDPOINTS
+
+=over 4
+
+
+
+=back
+
+=head1 METHODS
+
+=over 4
+
+=item C<_register_schedule($user, $session)>
+
+C<$user>의 스케줄 목록에 C<$session>을 등록합니다.
+
+=item C<_unregister_schedule($user, $schedule)>
+
+C<$user>의 스케줄 목록으로부터 C<$schedule>를 제거합니다.
+
+=item C<_find_collision($user, $session)>
+
+C<$user>가 등록한 스케줄 목록에서 C<$session>과 시간이 겹치는 스케줄을 찾습니다.
+
+=back
+

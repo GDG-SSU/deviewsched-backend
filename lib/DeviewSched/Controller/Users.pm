@@ -20,9 +20,10 @@ sub register {
     $self->stash(user => $user);
 
     my $user = $self->stash('user');
-    return $self->render_wrap(200, $user->serialize_columns(
-        [qw/id name picture/]
-    ));
+
+    return $self->render_wrap(200, {
+        user => $user->serialize_columns([qw/id name picture/])
+    });
 }
 
 sub update_user {

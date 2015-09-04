@@ -3,13 +3,18 @@ use utf8;
 
 use Mojo::Base qw/DeviewSched::Controller/;
 
+use DeviewSched::SessionListUtils
+    qw/COLUMNS_LIST_SESSIONS_SESSION COLUMNS_LIST_SESSIONS_SPEAKER/;
+
+sub COLUMNS_LIST_SCHEDULES_SESSION () { COLUMNS_LIST_SESSIONS_SESSION }
+    
 sub METHOD_PUT    () { 'PUT' }
 sub METHOD_DELETE () { 'DELETE' }
-sub COLUMNS_LIST_SCHEDULES_SESSION () { qw/id track day title starts_at ends_at/ }
 
 sub list {
     my $self = shift;
 
+    # $fetch_all으로 /user/schedules/all이 호출되었는지 여부를 확인합니다.
     my ($user, $fetch_all) = map { $self->stash($_) } qw/user fetch_all/;
     my ($year, $day)       = map { $self->param($_) } qw/year day/;
     
@@ -35,20 +40,24 @@ sub list {
         ],
 
         join     => 'session',
-        prefetch => 'session'
+        prefetch => 'session',
+        order_by => {
+            -asc => 'session.starts_at'
+        }
     });
 
-    my @sessions;
+    my $days = DeviewSched::SessionListUtils::classify_by_days([
+        map {
+            $_->session
+        } $schedule_rs->all
+    ]);
 
-    # TODO: 발표자 정보 포함하기
-    map { 
-        push @sessions, $_->session->serialize_columns(
-            [COLUMNS_LIST_SCHEDULES_SESSION]
-        ); 
-    } $schedule_rs->all; 
-    
     return $self->render_wrap(200, {
-        sessions => \@sessions    
+        (defined $fetch_all) ? (
+            days   => $days
+        ) : (
+            tracks => $days->[$day - 1]
+        )
     });
 }
 

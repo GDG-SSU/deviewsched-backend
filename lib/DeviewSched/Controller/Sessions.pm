@@ -4,8 +4,8 @@ use utf8;
 use Mojo::Base 'DeviewSched::Controller';
 use Time::HiRes qw/time/;
 
-sub COLUMNS_LIST_SESSIONS_SESSION () { qw/id track day title starts_at ends_at/ }
-sub COLUMNS_LIST_SESSIONS_SPEAKER () { qw/name picture/ }
+use DeviewSched::SessionListUtils 
+    qw/COLUMNS_LIST_SESSIONS_SESSION COLUMNS_LIST_SESSIONS_SPEAKER/;
 
 sub list_years {
     my $self = shift;
@@ -43,21 +43,9 @@ sub list_sessions {
         }
     });
 
-    for my $session (@sessions) {
-
-        my $day   = $session->day;
-        my $track = $session->track;
-
-        push @{($data[$day - 1]->{tracks}[$track - 1]->{sessions})}, {
-            %{ $session->serialize_columns([COLUMNS_LIST_SESSIONS_SESSION]) },
-            speakers => [ map {
-                $_->serialize_columns([COLUMNS_LIST_SESSIONS_SPEAKER]);
-            } $session->speakers ]
-        };
-    }
      
     $self->render(json => {
-        days => \@data, 
+        days => DeviewSched::SessionListUtils::classify_by_days(\@sessions)
     });
 }
 

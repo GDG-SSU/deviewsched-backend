@@ -91,6 +91,9 @@ sub process_all {
     my $method = $self->req->method;
     my ($session_year, $data) = map { $self->param($_) } qw/year data/;
 
+    # 트랜잭션 개시
+    my $tx_guard = $self->db_schema->txn_scope_guard;
+
     # remove all schedules
     my $resultset = $self->db_schema->resultset('UserSchedule');
     $resultset->delete_all({
@@ -102,18 +105,15 @@ sub process_all {
     if ($method eq METHOD_PUT) { 
         my @sessions = split ",", $data;
         
-        # 트랜잭션 개시
-        my $tx_guard = $self->db_schema->txn_scope_guard;
-
         for my $session_id (@sessions) {
             eval {
                 $self->_register_schedule($self, $session_year, $session_id);
             } or return $self->fail($self->FAIL_SCHEDULE_INSERTION); 
         }
-
-        # 트랜잭션 커밋
-        $tx_guard->commit;
     }
+
+    # 트랜잭션 커밋
+    $tx_guard->commit;
 
     return $self->render_wrap(200);
 }

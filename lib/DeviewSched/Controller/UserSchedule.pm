@@ -56,7 +56,7 @@ sub list {
         (defined $fetch_all) ? (
             days   => $days
         ) : (
-            tracks => $days->[$day - 1]
+            tracks => $days->[$day - 1]->{tracks}
         )
     });
 }

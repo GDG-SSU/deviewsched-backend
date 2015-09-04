@@ -95,11 +95,13 @@ sub process_all {
     my $tx_guard = $self->db_schema->txn_scope_guard;
 
     # remove all schedules
-    my $resultset = $self->db_schema->resultset('UserSchedule');
-    $resultset->delete_all({
+    my $resultset = $self->db_schema->resultset('UserSchedule')
+                         ->search_rs({
         user_id      => $user->id,
         session_year => $session_year
     });
+
+    $resultset->delete_all();
 
 
     if ($method eq METHOD_PUT) { 
@@ -107,8 +109,8 @@ sub process_all {
         
         for my $session_id (@sessions) {
             eval {
-                $self->_register_schedule($self, $session_year, $session_id);
-            } or return $self->fail($self->FAIL_SCHEDULE_INSERTION); 
+                $self->_register_schedule($user, $session_year, $session_id);
+            } or return $self->fail($self->FAIL_SCHEDULE_INSERTION, $@, $@); 
         }
     }
 

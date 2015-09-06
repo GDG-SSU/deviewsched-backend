@@ -72,18 +72,16 @@ sub startup {
     $r_user->any([qw/PUT DELETE/] => '/schedule')    ->to('user_schedule#process');
     $r_user->any([qw/PUT DELETE/] => '/schedule/all')->to('user_schedule#process_all');
 
-    $r_user->get('/attendance')    ->to('user_attendance#get_status');
-    $r_user->get('/attendance/all')->to('user_attendance#get_status', fetch_all => 1);
-
+    $r_user->get('/attendance')                    ->to('user_attendance#get_status', fetch_all => 1);
     $r_user->any([qw/PUT DELETE/] => '/attendance')->to('user_attendance#set_status');
 
     # friends
     $r_friends->get->to('user_friends#list');
 
-    $r_friends->get('/session')->to('user_friends#list');
+    $r_friends->get('/session')->to('user_friends#session_list');
 
-    $r_friends->get('/attendance')    ->to('user_attendance#get_status', is_friend => 1);
-    $r_friends->get('/attendance/all')->to('user_attendance#get_status', is_friend => 1, fetch_all => 1);
+    $r_friends->get('/attendance')    ->to('user_attendance#get_status', fetch_friend => 1);
+    $r_friends->get('/attendance/all')->to('user_attendance#get_status', fetch_friend => 1, fetch_all => 1);
 
     $router->any([qw/SORRY/] => '/im_late')->to(cb => sub {
         shift->render(text => "계속 늦어져서 미안해요 > <);");

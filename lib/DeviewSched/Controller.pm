@@ -18,6 +18,10 @@ sub FAIL_UNKNOWN_ERROR                () { (501, "Unknown error" ) }
 sub FAIL_REASON_MALFORMED_JSON        () { "Malformed JSON" }
 sub FAIL_REASON_AUTHORIZATION_HEADER  () { "Authorization header not defined" }
 
+sub METHOD_GET    () { 'GET'    }
+sub METHOD_PUT    () { 'PUT'    }
+sub METHOD_POST   () { 'POST'   }
+sub METHOD_DELETE () { 'DELETE' }
 
 sub fail {
     my $self = shift;

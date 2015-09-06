@@ -7,9 +7,6 @@ use DeviewSched::SessionListUtils
     qw/COLUMNS_LIST_SESSIONS_SESSION COLUMNS_LIST_SESSIONS_SPEAKER/;
 
 sub COLUMNS_LIST_SCHEDULES_SESSION () { COLUMNS_LIST_SESSIONS_SESSION }
-    
-sub METHOD_PUT    () { 'PUT' }
-sub METHOD_DELETE () { 'DELETE' }
 
 sub list {
     my $self = shift;
@@ -68,7 +65,7 @@ sub process {
     my $method = $self->req->method;
     my ($session_year, $session_id) = map { $self->param($_) } qw/year id/;
     
-    if ($method eq METHOD_PUT) { 
+    if ($method eq $self->METHOD_PUT) { 
         my $schedule     = eval { $self->_register_schedule($user, $session_year, $session_id) } 
                            or return $self->fail($self->FAIL_SCHEDULE_INSERTION, $@, $@);
 
@@ -79,7 +76,7 @@ sub process {
         } else {
             return $self->render_wrap(201);
         }
-    } elsif ($method eq METHOD_DELETE) {
+    } elsif ($method eq $self->METHOD_DELETE) {
         my $schedule = $self->_find_schedule($user, $session_year, $session_id);
 
         if (defined $schedule) {
@@ -113,7 +110,7 @@ sub process_all {
     $resultset->delete_all();
 
 
-    if ($method eq METHOD_PUT) { 
+    if ($method eq $self->METHOD_PUT) { 
         my @sessions = split ",", $data;
         
         for my $session_id (@sessions) {

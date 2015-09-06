@@ -6,8 +6,6 @@ use Data::Dumper;
 use Facebook::Graph;
 use Mojo::Base 'DeviewSched::Controller';
 
-sub FB_ME_REQUIRED_FIELDS () { ('id', 'name', 'picture') }
-
 sub register {
     my $self = shift;
 
@@ -19,8 +17,6 @@ sub register {
 
     $self->stash(user => $user);
 
-    my $user = $self->stash('user');
-
     return $self->render_wrap(200, {
         user => $user->serialize_columns([qw/id name picture/])
     });
@@ -31,11 +27,12 @@ sub update_user {
     
     my $token = shift;
     my $facebook = $self->fb_graph($token);
-    my $response = $facebook->query
-             ->find('me')
-             ->select_fields(FB_ME_REQUIRED_FIELDS)
-             ->request
-             ->as_hashref;
+    my $response = $facebook->request(
+        $facebook->query
+                 ->find('me')
+                 ->select_fields($facebook->FB_USER_REQUIRED_FIELDS)
+                 ->uri_as_string
+    )->as_hashref;
 
     my $resultset = $self->db_schema->resultset('User');
     my $user      = $resultset->update_or_create({
@@ -51,8 +48,16 @@ sub update_user {
     return $user;
 }
 
-sub remove {
+sub delete {
     my $self = shift;
+
+    my $user = $self->stash('user');
+
+    eval {
+        $user->delete;
+    } or return $self->fail($self->FAIL_UNKNOWN_ERROR, $@, $@);
+
+    return $self->render_wrap(200, {});
 }
 
 1;

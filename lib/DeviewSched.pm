@@ -3,6 +3,7 @@ use utf8;
 
 use DeviewSched::ConfigHelper qw/load_config/;
 use DeviewSched::Database qw/get_dbh/;
+use DeviewSched::FacebookAPI;
 
 use Mojo::Base 'Mojolicious';
 
@@ -34,7 +35,7 @@ sub startup {
         my $self  = shift;
         my $token = shift;
         
-        return Facebook::Graph->new(
+        return DeviewSched::FacebookAPI->new(
             ($token) ? (access_token => $token) :
                        (app_id => $self->config->{facebook}->{appid},
                         secret => $self->config->{facebook}->{secret})
@@ -58,7 +59,8 @@ sub startup {
 
     # 다른 라우트에도 이름을 붙여야 할 것인가.. 말아야 할 것인가..
     # (::Controller::Authorization::find_user에서 라우트 이름으로 사용자 등록인지 구분하고 있음) 
-    my $r_user = $router->under('/user')->to('authorization#validate');
+    my $r_user    = $router->under('/user')->to('authorization#validate');
+    my $r_friends = $r_user->under('/friends');
 
     $r_user->post  ->to('users#register')->name('register_user');
     $r_user->delete->to('users#delete');
@@ -70,9 +72,18 @@ sub startup {
     $r_user->any([qw/PUT DELETE/] => '/schedule')    ->to('user_schedule#process');
     $r_user->any([qw/PUT DELETE/] => '/schedule/all')->to('user_schedule#process_all');
 
-    # friends
-    $r_user->get('/friends')->to('users#friends_list');
+    $r_user->get('/attendance')    ->to('user_attendance#get_status');
+    $r_user->get('/attendance/all')->to('user_attendance#get_status', fetch_all => 1);
 
+    $r_user->any([qw/PUT DELETE/] => '/attendance')->to('user_attendance#set_status');
+
+    # friends
+    $r_friends->get->to('user_friends#list');
+
+    $r_friends->get('/session')->to('user_friends#list');
+
+    $r_friends->get('/attendance')    ->to('user_attendance#get_status', is_friend => 1);
+    $r_friends->get('/attendance/all')->to('user_attendance#get_status', is_friend => 1, fetch_all => 1);
 
     $router->any([qw/SORRY/] => '/im_late')->to(cb => sub {
         shift->render(text => "계속 늦어져서 미안해요 > <);");

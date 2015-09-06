@@ -33,13 +33,15 @@ L<plenv|https://github.com/tokuhirom/plenv>나 L<perlbrew|http://perlbrew.pl/>�
 
 =item * Facebook::Graph
 
-=item * Coro
-
 =item * MIME::Base64
 
 =item * URL::Encode
 
 =item * Digest::HMAC_SHA1
+
+=item * Coro
+
+크롤링 스크립트에서 다중 처리를 위해 사용하고 있습니다. Perl 5.22 이상에서는 현재 설치가 불가능합니다.
 
 =back
 

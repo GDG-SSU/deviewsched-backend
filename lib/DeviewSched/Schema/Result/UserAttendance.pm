@@ -7,8 +7,8 @@ __PACKAGE__->add_columns(
     id            => { data_type => 'serial' },
     user_id       => { data_type => 'bigint' },
 
-    session_year  => { data_type => 'numeric' },
-    session_day   => { data_type => 'numeric' },
+    session_year  => { data_type => 'integer' },
+    session_day   => { data_type => 'integer' },
 );
 
 

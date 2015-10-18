@@ -7,8 +7,8 @@ __PACKAGE__->add_columns(
 
     # serial == auto_increment integer
     id              => { data_type => 'serial' }, 
-    session_year    => { data_type => 'numeric' },
-    session_id      => { data_type => 'numeric' },
+    session_year    => { data_type => 'integer' },
+    session_id      => { data_type => 'integer' },
 
     name            => { data_type => 'text' },
     organization    => { data_type => 'text' },

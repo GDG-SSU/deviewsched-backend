@@ -6,11 +6,11 @@ __PACKAGE__->load_components(qw/InflateColumn::DateTime/);
 __PACKAGE__->table('deview_session');
 
 __PACKAGE__->add_columns(
-    year            => { data_type => 'numeric' },
-    id              => { data_type => 'numeric' },
+    year            => { data_type => 'integer' },
+    id              => { data_type => 'integer' },
 
-    day             => { data_type => 'numeric' },
-    track           => { data_type => 'numeric' },
+    day             => { data_type => 'integer' },
+    track           => { data_type => 'integer' },
 
     title           => { data_type => 'text' },
     description     => { data_type => 'text' },
